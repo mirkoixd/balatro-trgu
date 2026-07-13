@@ -214,7 +214,6 @@ local function trgu_corrupted_destroy_cerac_if_exists()
 			return true
 		end
 	}))
-
 	return true
 end
 
@@ -241,7 +240,6 @@ SMODS.Enhancement {
 
 	atlas = 'corruptedcard',
 	pos = { x = 0, y = 0 },
-
 	replace_base_card = true,
 	no_rank = true,
 	no_suit = true,

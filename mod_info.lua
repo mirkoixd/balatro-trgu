@@ -80,6 +80,12 @@ TRGU.version_log_index = 1
 
 TRGU.VERSION_LOGS = {
 	{
+		title = "Hotfix Update v0.5.1 (14.07.2026)",
+		lines = {
+			"- Bug fixes"
+		}
+	},
+	{
 		title = "Pre-release Update v0.5.0 (13.07.2026)",
 		lines = {
 			"- 9 new jokers",
