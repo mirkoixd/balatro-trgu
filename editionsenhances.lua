@@ -334,8 +334,35 @@ SMODS.Enhancement {
 					5
 				)
 
+				if dollars ~= 0 then
+					G.E_MANAGER:add_event(Event({
+						trigger = 'after',
+						delay = 0.1,
+						func = function()
+							if ease_dollars then
+								ease_dollars(dollars)
+							elseif G and G.GAME then
+								G.GAME.dollars = (G.GAME.dollars or 0) + dollars
+							end
+
+							return true
+						end
+					}))
+				end
+
+				local money_text
+
+				if dollars > 0 then
+					money_text = '+$' .. tostring(dollars)
+				elseif dollars < 0 then
+					money_text = '-$' .. tostring(math.abs(dollars))
+				else
+					money_text = '$0'
+				end
+
 				return {
-					p_dollars = dollars
+					message = money_text,
+					colour = dollars >= 0 and G.C.MONEY or G.C.RED
 				}
 			end
 		end
