@@ -1,0 +1,16 @@
+{
+	"id": "trgumod",
+	"name": "TrGu Mod",
+	"display_name": "TrGu Mod",
+	"author": ["mirkoi"],
+	"description": "TrGu Mod adds chaotic Jokers, brand new Admin cards, new decks, tags and more... A meme-heavy expansion focused on weird mechanics, risky rewards and community-inspired cards.",
+	"prefix": "trgu",
+	"main_file": "main.lua",
+	"priority": 0,
+	"badge_colour": "917D4E",
+	"badge_text_colour": "FFFFFF",
+	"version": "0.5.0",
+    "dependencies": [
+        "Steamodded (>=1.0.0~ALPHA-1225a)"
+    ]
+}
