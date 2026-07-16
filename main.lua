@@ -5569,8 +5569,7 @@ SMODS.Joker {
 				"{C:green}#2# in #3#{} chance to",
 				"take control and play",
 				"{C:attention}5{} random cards",
-				"That hand gives",
-				"{X:mult,C:white} X#1# {} Mult"
+				"That hand gives {X:mult,C:white} X#1# {} Mult"
 			}
 		},
 		ru = {
@@ -5580,8 +5579,7 @@ SMODS.Joker {
 				"{C:green}#2# из #3#{} шанс",
 				"захватить управление",
 				"и сыграть {C:attention}5{} случайных карт",
-				"эта рука даёт",
-				"{X:mult,C:white} X#1# {} множ."
+				"эта рука даёт {X:mult,C:white} X#1# {} множ."
 			}
 		}
 	},
@@ -7451,5 +7449,190 @@ SMODS.Joker {
 		end
 
 		return ret
+	end
+}
+
+-- НЕ МИКУ ДЖОКЕР
+SMODS.Atlas {
+	key = "notmiku",
+	path = "NotMiku.png",
+	px = 71,
+	py = 95
+}
+
+local function trgu_card_is_spade(card)
+	if not card then return false end
+
+	if card.is_suit then
+		return card:is_suit('Spades')
+	end
+
+	return card.base and card.base.suit == 'Spades'
+end
+
+SMODS.Joker {
+	key = 'notmiku',
+
+	loc_txt = {
+		['en-us'] = {
+			name = 'Not Miku',
+			text = {
+				"Each triggered {C:spades}Spade{} card",
+				"gives increasing {C:mult}Mult{}",
+				"{C:inactive}(+#1#, +#2#, +#3#...){}"
+			}
+		},
+		ru = {
+			name = 'Не Мику',
+			text = {
+				"Каждое срабатывание",
+				"{C:spades}пиковой{} карты даёт",
+				"увеличивающийся {C:mult}множ.{}",
+				"{C:inactive}(+#1#, +#2#, +#3#...){}"
+			}
+		}
+	},
+
+	config = {
+		extra = {
+			trigger_count = 0
+		}
+	},
+
+	loc_vars = function(self, info_queue, card)
+		return {
+			vars = {
+				1,
+				2,
+				3
+			}
+		}
+	end,
+
+	rarity = 2,
+	atlas = 'notmiku',
+	pos = { x = 0, y = 0 },
+	cost = 6,
+
+	blueprint_compat = true,
+
+	calculate = function(self, card, context)
+		if context.before then
+			card.ability.extra.trigger_count = 0
+		end
+
+		if context.individual
+			and context.cardarea == G.play
+			and context.other_card
+			and trgu_card_is_spade(context.other_card)
+		then
+			card.ability.extra.trigger_count =
+				(card.ability.extra.trigger_count or 0) + 1
+
+			local current_mult = card.ability.extra.trigger_count
+
+			return {
+				mult = current_mult,
+				card = context.other_card
+			}
+		end
+	end
+}
+
+-- МАМА ДЖОКЕР
+SMODS.Atlas {
+	key = "mother",
+	path = "Mother.png",
+	px = 71,
+	py = 95
+}
+
+local function trgu_card_is_club(card)
+	if not card then return false end
+
+	if card.is_suit then
+		return card:is_suit('Clubs')
+	end
+
+	return card.base and card.base.suit == 'Clubs'
+end
+
+local function trgu_mother_get_last_played_card(context)
+	if context and context.full_hand and #context.full_hand > 0 then
+		return context.full_hand[#context.full_hand]
+	end
+
+	if context and context.scoring_hand and #context.scoring_hand > 0 then
+		return context.scoring_hand[#context.scoring_hand]
+	end
+
+	if G and G.play and G.play.cards and #G.play.cards > 0 then
+		return G.play.cards[#G.play.cards]
+	end
+
+	return nil
+end
+
+SMODS.Joker {
+	key = 'mother',
+
+	loc_txt = {
+		['en-us'] = {
+			name = 'Mother',
+			text = {
+				"If the last card",
+				"in played hand is",
+				"{C:clubs}Clubs{}, it gives",
+				"{X:mult,C:white} X#1# {} Mult"
+			}
+		},
+		ru = {
+			name = 'Мать',
+			text = {
+				"Если последняя карта",
+				"в разыгранной руке —",
+				"{C:clubs}трефовая{}, она даёт",
+				"{X:mult,C:white} X#1# {} множ."
+			}
+		}
+	},
+
+	config = {
+		extra = {
+			xmult = 2
+		}
+	},
+
+	loc_vars = function(self, info_queue, card)
+		return {
+			vars = {
+				card.ability.extra.xmult
+			}
+		}
+	end,
+
+	rarity = 2,
+	atlas = 'mother',
+	pos = { x = 0, y = 0 },
+	cost = 6,
+
+	blueprint_compat = true,
+
+	calculate = function(self, card, context)
+		if context.individual
+			and context.cardarea == G.play
+			and context.other_card
+		then
+			local last_card = trgu_mother_get_last_played_card(context)
+
+			if last_card == context.other_card
+				and trgu_card_is_club(context.other_card)
+			then
+				return {
+					xmult = card.ability.extra.xmult,
+					card = context.other_card
+				}
+			end
+		end
 	end
 }

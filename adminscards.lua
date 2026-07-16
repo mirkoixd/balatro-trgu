@@ -200,7 +200,9 @@ local TRGU_PACK_JOKERS = {
 	'pinkreborn',
 	'elias',
 	'quixort',
-	'ignat_korolev'
+	'ignat_korolev',
+	'notmiku',
+	'mother'
 }
 
 local TRGU_JACKBOX_JOKERS = {

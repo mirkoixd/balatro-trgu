@@ -99,6 +99,11 @@ return {
 
 			trgu_ignat_work_done = "Done.",
 			trgu_slot = "Slot",
+
+			trgu_mishburger = "Mishburger!",
+
+			trgu_no_consumables = "No consumables!",
+			trgu_stone = "Stone!"
 		},
 		v_dictionary = {
 			trgu_frozen_hands = "+#1# hand(s)",

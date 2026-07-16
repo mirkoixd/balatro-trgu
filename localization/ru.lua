@@ -98,7 +98,12 @@ return {
 			trgu_quixorted = "Сдвиг!",
 
 			trgu_ignat_work_done = "Готово",
-			trgu_slot = "Слот"
+			trgu_slot = "Слот",
+
+			trgu_mishburger = "Мишбургер!",
+
+			trgu_no_consumables = "Без расходников!",
+			trgu_stone = "Каменная!"
 		},
 		v_dictionary = {
 			trgu_frozen_hands = "+#1# рук(и)",

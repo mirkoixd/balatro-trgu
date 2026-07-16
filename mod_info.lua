@@ -80,6 +80,14 @@ TRGU.version_log_index = 1
 
 TRGU.VERSION_LOGS = {
 	{
+		title = "Boss Rush update v0.7 (17.07.2026)",
+		lines = {
+			"- 2 new jokers",
+			"- 5 new boss blinds",
+			"- Some rebalance changes and bug fixes"
+		}
+	},
+	{
 		title = "Rare Jokers update v0.6 (16.07.2026)",
 		lines = {
 			"- 4 new jokers",
