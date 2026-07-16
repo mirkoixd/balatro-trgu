@@ -80,16 +80,24 @@ TRGU.version_log_index = 1
 
 TRGU.VERSION_LOGS = {
 	{
+		title = "Rare Jokers update v0.6 (16.07.2026)",
+		lines = {
+			"- 4 new jokers",
+			"- Some rebalance changes and bug fixes"
+		}
+	},
+	{
 		title = "Hotfix Update v0.5.1 (14.07.2026)",
 		lines = {
 			"- Bug fixes"
 		}
 	},
 	{
-		title = "Pre-release Update v0.5.0 (13.07.2026)",
+		title = "Public Update v0.5.0 (13.07.2026)",
 		lines = {
 			"- 9 new jokers",
-			"- Some rebalance changes and fixes"
+			"- Some rebalance changes and bug fixes",
+			"- Public GitHub release"
 		}
 	},
 	{
@@ -109,7 +117,7 @@ TRGU.VERSION_LOGS = {
 		lines = {
 			"- 11 new jokers",
 			"- 1 new boss blind",
-			"- Some rebalance changes and fixes"
+			"- Some rebalance changes and bug fixes"
 		}
 	},
     {

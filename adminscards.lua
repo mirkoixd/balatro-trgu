@@ -196,7 +196,11 @@ local TRGU_PACK_JOKERS = {
 	'twochairs',
 	'yellowroulette',
 	'friday',
-	'prl'
+	'prl',
+	'pinkreborn',
+	'elias',
+	'quixort',
+	'ignat_korolev'
 }
 
 local TRGU_JACKBOX_JOKERS = {
@@ -212,7 +216,8 @@ local TRGU_JACKBOX_JOKERS = {
 	'pnh',
 	'mysterybox',
 	'yellowroulette',
-	'friday'
+	'friday',
+	'quixort'
 }
 
 local function trgu_resolve_joker_key(short_key)
@@ -1242,7 +1247,7 @@ loc_txt = {
         text = {
             "Создаёт случайного",
             "{C:red}редкого{} джокера",
-            "со стикером {C:attention}Perishable{}",
+            "с наклейкой {C:attention}Портящийся{}",
             "{C:inactive}(Нужно место)"
         }
     }
@@ -1551,49 +1556,59 @@ SMODS.Consumable {
 	pos = trgu_admin_pos(5, 1),
 
 	loc_txt = {
-    ['en-us'] = {
-        name = 'Misharey',
-        text = {
-            "Enhance {C:attention}1{}",
-            "selected card into",
-            "{C:attention}Convert Card{}"
-        }
-    },
-    ru = {
-        name = 'Мишарей',
-        text = {
-            "Улучшает {C:attention}1{}",
-            "выбранную карту в",
-            "{C:attention}Convert Card{}"
-        }
-    }
-},
+		['en-us'] = {
+			name = 'Misharey',
+			text = {
+				"Enhance up to",
+				"{C:attention}3{} selected cards",
+				"into {C:attention}Convert Cards{}"
+			}
+		},
+		ru = {
+			name = 'Мишарей',
+			text = {
+				"Улучшает до",
+				"{C:attention}3{} выбранных карт",
+				"в {C:attention}валютные карты{}"
+			}
+		}
+	},
 
 	can_use = function(self, card)
 		return G.hand
 			and G.hand.highlighted
-			and #G.hand.highlighted == 1
+			and #G.hand.highlighted >= 1
+			and #G.hand.highlighted <= 3
 			and trgu_find_convert_enhancement() ~= nil
 	end,
 
 	use = function(self, card, area, copier)
-		local playing_card = G.hand.highlighted[1]
 		local convert_center = trgu_find_convert_enhancement()
 
-		if not playing_card or not convert_center then
+		if not convert_center then
 			print("Misharey: Convert enhancement not found")
 			return
 		end
 
-		G.E_MANAGER:add_event(Event({
-			trigger = 'after',
-			delay = 0.15,
-			func = function()
-				playing_card:set_ability(convert_center, nil, true)
-				playing_card:juice_up()
-				return true
+		local selected_cards = {}
+
+		for _, playing_card in ipairs(G.hand.highlighted) do
+			selected_cards[#selected_cards + 1] = playing_card
+		end
+
+		for i, playing_card in ipairs(selected_cards) do
+			if playing_card and not playing_card.removed then
+				G.E_MANAGER:add_event(Event({
+					trigger = 'after',
+					delay = 0.12 * i,
+					func = function()
+						playing_card:set_ability(convert_center, nil, true)
+						playing_card:juice_up()
+						return true
+					end
+				}))
 			end
-		}))
+		end
 
 		if G.hand and G.hand.unhighlight_all then
 			G.hand:unhighlight_all()

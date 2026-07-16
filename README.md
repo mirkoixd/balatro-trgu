@@ -4,8 +4,8 @@ A content expansion mod for **Balatro**, created with the **Steamodded / SMODS**
 
 TrGu Mod adds a large collection of original Jokers, Admin cards, enhancements, decks, tags, booster packs, a custom Boss Blind, new audio, custom UI elements, and full English and Russian localization.
 
-> **Current version:** v0.5.1 Pre-release  
-> **Last update:** July 14, 2026
+> **Current version:** v0.6 Pre-release  
+> **Last update:** July 16, 2026
 
 ---
 
@@ -13,7 +13,7 @@ TrGu Mod adds a large collection of original Jokers, Admin cards, enhancements, 
 
 The current version of TrGu Mod includes:
 
-- **58 new Jokers**
+- **62 new Jokers**
 - **12 Admin cards**
 - **2 custom enhancements**
 - **2 new decks**

@@ -90,7 +90,15 @@ return {
 			trgu_edition_applied = "Edition!",
 			trgu_wheel_created = "Wheel!",
 			trgu_friday_yes = "Friday!",
-			trgu_friday_no = "Not Friday"
+			trgu_friday_no = "Not Friday",
+
+			trgu_no_room = "No room!",
+			trgu_reward = "Reward!",
+			trgu_time_up = "Time up!",
+			trgu_quixorted = "Quixorted!",
+
+			trgu_ignat_work_done = "Done.",
+			trgu_slot = "Slot",
 		},
 		v_dictionary = {
 			trgu_frozen_hands = "+#1# hand(s)",

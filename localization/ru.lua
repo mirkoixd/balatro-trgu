@@ -90,7 +90,15 @@ return {
 			trgu_edition_applied = "Издание!",
 			trgu_wheel_created = "Колесо!",
 			trgu_friday_yes = "Пятница!",
-			trgu_friday_no = "Не пятница"
+			trgu_friday_no = "Не пятница",
+
+			trgu_no_room = "Нет места!",
+			trgu_reward = "Награда!",
+			trgu_time_up = "Время вышло!",
+			trgu_quixorted = "Сдвиг!",
+
+			trgu_ignat_work_done = "Готово",
+			trgu_slot = "Слот"
 		},
 		v_dictionary = {
 			trgu_frozen_hands = "+#1# рук(и)",

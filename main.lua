@@ -2628,7 +2628,7 @@ SMODS.Joker {
 	},
 	config = {
 		extra = {
-			Xmult = 2.5
+			Xmult = 3
 		}
 	},
 
@@ -3145,10 +3145,10 @@ SMODS.Joker {
 
 	config = {
 		extra = {
-			mult = 4,
-			chips = 8,
-			xmult = 1.1,
-			dollars = 2,
+			mult = 5,
+			chips = 15,
+			xmult = 1.5,
+			dollars = 3,
 			last_roll = 0
 		}
 	},
@@ -4262,7 +4262,7 @@ SMODS.Joker {
 				"Retrigger all scored cards",
 				"{C:attention}1{} additional time",
 				"At final scoring step,",
-				"{C:red}-35%{} Chips and Mult"
+				"{C:red}-20%{} Chips and Mult"
 			}
 		},
 		ru = {
@@ -4271,7 +4271,7 @@ SMODS.Joker {
 				"Перезапускает все",
 				"подсчитанные карты ещё {C:attention}1{} раз",
 				"в финальном шаге подсчёта:",
-				"{C:red}-35%{} фишек и множ."
+				"{C:red}-20%{} фишек и множ."
 			}
 		}
 	},
@@ -4290,8 +4290,8 @@ SMODS.Joker {
 		end
 
 		if context.final_scoring_step then
-			hand_chips = mod_chips(math.floor((tonumber(hand_chips) or 0) * 0.35))
-			mult = mod_mult(math.floor((tonumber(mult) or 0) * 0.35))
+			hand_chips = mod_chips(math.floor((tonumber(hand_chips) or 0) * 0.20))
+			mult = mod_mult(math.floor((tonumber(mult) or 0) * 0.20))
 
 			update_hand_text(
 				{ delay = 0 },
@@ -4302,7 +4302,7 @@ SMODS.Joker {
 			)
 
 			return {
-				message = "-35%",
+				message = "-20%",
 				colour = G.C.RED
 			}
 		end
@@ -4527,14 +4527,14 @@ SMODS.Joker {
 			) + 1
 
 			return {
-				message = card.ability.extra.favourite_slot,
+				message = localize('trgu_slot') .. ' ' .. tostring(card.ability.extra.favourite_slot),
 				colour = G.C.FILTER
 			}
 		end
 	end
 }
 
--- Я ЖАЖДУ ТВОЕЙ СМЕРТИ
+-- Я ЖАЖДУ ТВОЕЙ СМЕРТИ ДЖОКЕР
 SMODS.Atlas {
 	key = "ieytd",
 	path = "Expect.png",
@@ -6149,32 +6149,45 @@ SMODS.Joker {
 		['en-us'] = {
 			name = 'There Are 2 Chairs',
 			text = {
-				"Each hand gives either",
-				"{X:mult,C:white} X#1# {} Mult or",
+				"{C:green}#3# in #4#{} chance",
+				"to give {X:mult,C:white} X#1# {} Mult,",
+				"otherwise gives",
 				"{X:mult,C:white} X#2# {} Mult"
 			}
 		},
 		ru = {
 			name = 'Есть 2 стула',
 			text = {
-				"Каждую руку даёт либо",
-				"{X:mult,C:white} X#1# {} множ., либо",
+				"{C:green}#3# из #4#{} шанс",
+				"дать {X:mult,C:white} X#1# {} множ.,",
+				"иначе даёт",
 				"{X:mult,C:white} X#2# {} множ."
 			}
 		}
 	},
+
 	config = {
 		extra = {
 			good_xmult = 2,
-			bad_xmult = 0.5
+			bad_xmult = 0.5,
+			odds = 2
 		}
 	},
 
 	loc_vars = function(self, info_queue, card)
+		local numerator, denominator = SMODS.get_probability_vars(
+			card,
+			1,
+			card.ability.extra.odds,
+			'twochairs_good'
+		)
+
 		return {
 			vars = {
 				card.ability.extra.good_xmult,
-				card.ability.extra.bad_xmult
+				card.ability.extra.bad_xmult,
+				numerator,
+				denominator
 			}
 		}
 	end,
@@ -6186,12 +6199,20 @@ SMODS.Joker {
 
 	calculate = function(self, card, context)
 		if context.joker_main then
-			local good = pseudorandom(
-				'two_chairs_' .. tostring(card.ID or '') .. '_' .. tostring(G.GAME.hands_played or 0)
-			) < 0.5
+			local good = SMODS.pseudorandom_probability(
+				card,
+				'twochairs_good_' .. tostring(G.GAME.hands_played or 0),
+				1,
+				card.ability.extra.odds
+			)
+
+			local xmult = good
+				and card.ability.extra.good_xmult
+				or card.ability.extra.bad_xmult
 
 			return {
-				xmult = good and card.ability.extra.good_xmult or card.ability.extra.bad_xmult
+				xmult = xmult,
+				colour = good and G.C.MULT or G.C.RED
 			}
 		end
 	end
@@ -6366,16 +6387,16 @@ SMODS.Joker {
 			text = {
 				"В финальном шаге подсчёта",
 				"с шансом {C:green}#1# из #2#{} даёт",
-				"{C:red}-70%{} фишек, иначе",
-				"{C:chips}+10%{} фишек"
+				"{C:red}-60%{} фишек, иначе",
+				"{C:chips}+25%{} фишек"
 			}
 		}
 	},
 	config = {
 		extra = {
 			odds = 4,
-			bad_factor = 0.3,
-			good_factor = 1.1
+			bad_factor = 0.4,
+			good_factor = 1.25
 		}
 	},
 
@@ -6422,9 +6443,1013 @@ SMODS.Joker {
 			)
 
 			return {
-				message = bad and '-70%' or '+10%',
+				message = bad and '-60%' or '+25%',
 				colour = bad and G.C.RED or G.C.CHIPS
 			}
 		end
+	end
+}
+
+-- РОЗОВЫЙ РЕБОРН ДЖОКЕР
+SMODS.Atlas {
+	key = "pinkreborn",
+	path = "PinkReborn.png",
+	px = 71,
+	py = 95
+}
+
+local function trgu_count_hearts_in_cards(cards)
+	local count = 0
+
+	if not cards then return 0 end
+
+	for _, c in ipairs(cards) do
+		if c then
+			if c.is_suit and c:is_suit('Hearts') then
+				count = count + 1
+			elseif c.base and c.base.suit == 'Hearts' then
+				count = count + 1
+			end
+		end
+	end
+
+	return count
+end
+
+SMODS.Joker {
+	key = 'pinkreborn',
+	loc_txt = {
+		['en-us'] = {
+			name = 'Pink Reborn',
+			text = {
+				"{C:mult}+#1#{} Mult if",
+				"played hand contains",
+				"at least {C:attention}3{} {C:hearts}Hearts{} cards"
+			}
+		},
+		ru = {
+			name = 'Розовый Реборн',
+			text = {
+				"{C:mult}+#1#{} множ., если",
+				"в сыгранной руке есть",
+				"хотя бы {C:attention}3{} {C:hearts}червовые{} карты"
+			}
+		}
+	},
+	config = {
+		extra = {
+			mult = 13,
+			hearts_needed = 3
+		}
+	},
+	loc_vars = function(self, info_queue, card)
+		return {
+			vars = {
+				card.ability.extra.mult,
+				card.ability.extra.hearts_needed
+			}
+		}
+	end,
+	rarity = 1,
+	atlas = 'pinkreborn',
+	pos = { x = 0, y = 0 },
+	cost = 5,
+
+	calculate = function(self, card, context)
+		if context.joker_main then
+			local cards = context.full_hand or context.scoring_hand
+
+			if trgu_count_hearts_in_cards(cards) >= card.ability.extra.hearts_needed then
+				return {
+					mult = card.ability.extra.mult
+				}
+			end
+		end
+	end
+}
+
+-- ЭЛИАС ДЖОКЕР
+SMODS.Atlas {
+	key = "elias",
+	path = "Elias.png",
+	px = 71,
+	py = 95
+}
+
+TRGU = TRGU or {}
+TRGU.elias = TRGU.elias or {}
+
+local function trgu_elias_now()
+	if G and G.TIMERS and G.TIMERS.REAL then
+		return G.TIMERS.REAL
+	end
+
+	if love and love.timer then
+		return love.timer.getTime()
+	end
+
+	return 0
+end
+
+local function trgu_elias_is_card(card)
+	local center = card and card.config and card.config.center
+	local key = center and tostring(center.key or "") or ""
+	local original_key = center and tostring(center.original_key or "") or ""
+
+	return key:sub(-5) == 'elias' or original_key == 'elias'
+end
+
+local function trgu_elias_cards()
+	local result = {}
+
+	if not G or not G.jokers or not G.jokers.cards then
+		return result
+	end
+
+	for _, joker in ipairs(G.jokers.cards) do
+		if trgu_elias_is_card(joker) then
+			result[#result + 1] = joker
+		end
+	end
+
+	return result
+end
+
+local function trgu_elias_can_tick()
+	if not (G and G.STATE and G.STATES and G.STATE == G.STATES.SELECTING_HAND) then
+		return false
+	end
+
+	if not G.GAME or not G.GAME.blind then
+		return false
+	end
+
+	return true
+end
+
+local function trgu_elias_remove_timer_ui()
+	if TRGU.elias.timer_ui then
+		TRGU.elias.timer_ui:remove()
+		TRGU.elias.timer_ui = nil
+	end
+end
+
+G.UIDEF.trgu_elias_timer = function()
+	return {
+		n = G.UIT.ROOT,
+		config = {
+			align = "cm",
+			padding = 0,
+			colour = G.C.CLEAR
+		},
+		nodes = {
+			{
+				n = G.UIT.C,
+				config = {
+					align = "cm",
+					padding = 0.08,
+					r = 0.08,
+					colour = G.C.DYN_UI.DARK,
+					minw = 1.75
+				},
+				nodes = {
+					{
+						n = G.UIT.T,
+						config = {
+							ref_table = TRGU.elias,
+							ref_value = 'timer_text',
+							scale = 0.42,
+							colour = G.C.FILTER,
+							shadow = true
+						}
+					}
+				}
+			}
+		}
+	}
+end
+
+local function trgu_elias_create_timer_ui()
+	if TRGU.elias.timer_ui then return end
+	if not G or not G.ROOM_ATTACH then return end
+
+	TRGU.elias.timer_ui = UIBox {
+		definition = G.UIDEF.trgu_elias_timer(),
+		config = {
+			align = "cri",
+			major = G.ROOM_ATTACH,
+			offset = { x = -3.2, y = -6.1 }
+		}
+	}
+end
+
+
+local function trgu_elias_blind_won()
+	if not G or not G.GAME or not G.GAME.blind then
+		return false
+	end
+
+	local chips = tonumber(G.GAME.chips or 0) or 0
+	local target = tonumber(G.GAME.blind.chips or math.huge) or math.huge
+
+	return chips >= target
+end
+
+local function trgu_elias_has_room(card)
+	if not G or not G.consumeables then return false end
+
+	local buffer = G.GAME and (G.GAME.consumeable_buffer or 0) or 0
+	local limit = G.consumeables.config.card_limit or 0
+	local current = #G.consumeables.cards + buffer
+
+	if card and card.area == G.consumeables then
+		current = current - 1
+	end
+
+	return current < limit
+end
+
+local function trgu_elias_roll_consumable_set(card)
+	local id = card and card.ID or 0
+	local roll = pseudorandom('elias_drop_' .. tostring(G.GAME.round or 0) .. '_' .. tostring(id))
+
+	if roll < 0.40 then
+		return 'Planet'
+	elseif roll < 0.80 then
+		return 'Tarot'
+	elseif roll < 0.92 then
+		return 'Spectral'
+	else
+		return 'Admin'
+	end
+end
+
+local function trgu_elias_add_reward(card)
+	if not trgu_elias_has_room() then
+		SMODS.calculate_effect({
+			message = localize('trgu_no_room') or 'No room!',
+			colour = G.C.RED
+		}, card)
+
+		return false
+	end
+
+	local set = trgu_elias_roll_consumable_set(card)
+
+	if set == 'Admin' and not (G.P_CENTER_POOLS and G.P_CENTER_POOLS.Admin) then
+		set = 'Tarot'
+	end
+
+	G.GAME.consumeable_buffer = (G.GAME.consumeable_buffer or 0) + 1
+
+	G.E_MANAGER:add_event(Event({
+		trigger = 'after',
+		delay = 0.2,
+		func = function()
+			SMODS.add_card({
+				set = set,
+				area = G.consumeables,
+				allow_duplicates = true,
+				soulable = set == 'Spectral',
+				key_append = 'elias'
+			})
+
+			G.GAME.consumeable_buffer = math.max((G.GAME.consumeable_buffer or 1) - 1, 0)
+
+			SMODS.calculate_effect({
+				message = localize('trgu_reward') or 'Reward!',
+				colour = G.C.SECONDARY_SET[set] or G.C.FILTER
+			}, card)
+
+			return true
+		end
+	}))
+
+	return true
+end
+
+local function trgu_elias_update_timer()
+	local cards = trgu_elias_cards()
+	local now = trgu_elias_now()
+	local display_card = nil
+	local display_remaining = nil
+
+	for _, card in ipairs(cards) do
+		local extra = card.ability and card.ability.extra
+
+		if extra and extra.elias_active then
+			if trgu_elias_can_tick() then
+				local dt = 0
+
+				if extra.last_update_time then
+					dt = math.max(0, now - extra.last_update_time)
+				end
+
+				extra.last_update_time = now
+				extra.remaining = math.max(0, (extra.remaining or 0) - dt)
+
+				if extra.remaining <= 0 and not extra.expired then
+					extra.expired = true
+					extra.elias_active = false
+
+					SMODS.calculate_effect({
+						message = localize('trgu_time_up') or 'Time up!',
+						colour = G.C.RED
+					}, card)
+				end
+			else
+				extra.last_update_time = now
+			end
+
+			if not extra.expired and (extra.remaining or 0) > 0 then
+				if not display_remaining or extra.remaining < display_remaining then
+					display_remaining = extra.remaining
+					display_card = card
+				end
+			end
+		end
+	end
+
+	if display_card and display_remaining then
+		TRGU.elias.timer_text = string.format('%.1fs', display_remaining)
+		trgu_elias_create_timer_ui()
+	else
+		trgu_elias_remove_timer_ui()
+	end
+end
+
+if not TRGU.elias_update_hooked then
+	TRGU.elias_update_hooked = true
+	TRGU.elias_game_update_ref = Game.update
+
+	function Game:update(dt)
+		TRGU.elias_game_update_ref(self, dt)
+		trgu_elias_update_timer()
+	end
+end
+
+SMODS.Joker {
+	key = 'elias',
+	loc_txt = {
+		['en-us'] = {
+			name = 'Elias',
+			text = {
+				"At start of Blind,",
+				"starts a {C:attention}#1#s{} timer",
+				"Beat the Blind in time",
+				"to create a random",
+				"{C:attention}Consumable{} card",
+				"{C:inactive}(Requires room)"
+			}
+		},
+		ru = {
+			name = 'Элиас',
+			text = {
+				"В начале блайнда",
+				"запускает таймер на {C:attention}#1# сек.{}",
+				"Пройдите блайнд вовремя,",
+				"чтобы создать случайную",
+				"{C:attention}расходуемую{} карту",
+				"{C:inactive}(Нужно место)"
+			}
+		}
+	},
+	config = {
+		extra = {
+			time_limit = 20,
+			remaining = 20,
+			elias_active = false,
+			expired = false,
+			last_update_time = 0
+		}
+	},
+	loc_vars = function(self, info_queue, card)
+		return {
+			vars = {
+				card.ability.extra.time_limit
+			}
+		}
+	end,
+	rarity = 3,
+	atlas = 'elias',
+	pos = { x = 0, y = 0 },
+	cost = 7,
+
+	blueprint_compat = false,
+
+	calculate = function(self, card, context)
+		if context.setting_blind and not context.blueprint then
+			card.ability.extra.remaining = card.ability.extra.time_limit
+			card.ability.extra.elias_active = true
+			card.ability.extra.expired = false
+			card.ability.extra.last_update_time = trgu_elias_now()
+
+			return {
+				message = tostring(card.ability.extra.time_limit) .. 's',
+				colour = G.C.FILTER
+			}
+		end
+
+		if context.end_of_round and context.main_eval and not context.blueprint then
+			if trgu_elias_blind_won()
+				and card.ability.extra.elias_active
+				and not card.ability.extra.expired
+				and (card.ability.extra.remaining or 0) > 0
+			then
+				card.ability.extra.elias_active = false
+				trgu_elias_add_reward(card)
+			else
+				card.ability.extra.elias_active = false
+			end
+		end
+	end,
+
+	remove_from_deck = function(self, card, from_debuff)
+		card.ability.extra.elias_active = false
+		trgu_elias_remove_timer_ui()
+	end
+}
+
+-- QUIXORT ДЖОКЕР
+SMODS.Atlas {
+	key = "quixort",
+	path = "Quixort.png",
+	px = 71,
+	py = 95
+}
+
+local TRGU_QUIXORT_SETS = {
+	Tarot = true,
+	Planet = true,
+	Spectral = true,
+	Admin = true
+}
+
+local function trgu_quixort_get_set(card)
+	local center = card and card.config and card.config.center
+	local set = center and center.set
+
+	if TRGU_QUIXORT_SETS[set] then
+		return set
+	end
+
+	return nil
+end
+
+local function trgu_quixort_random_center(set, old_key, seed)
+	if not G or not G.P_CENTER_POOLS then return nil end
+
+	local pool = G.P_CENTER_POOLS[set]
+	if not pool then return nil end
+
+	local candidates = {}
+
+	for _, center in ipairs(pool) do
+		if center
+			and center.key
+			and center.key ~= old_key
+			and center.set == set
+			and not center.no_collection
+		then
+			candidates[#candidates + 1] = center
+		end
+	end
+
+	if #candidates <= 0 then return nil end
+
+	local index = math.floor(pseudorandom(seed) * #candidates) + 1
+	return candidates[index]
+end
+
+local function trgu_quixort_transform_card(consumable, seed)
+	local set = trgu_quixort_get_set(consumable)
+	if not set then return false end
+
+	local old_center = consumable.config and consumable.config.center
+	local old_key = old_center and old_center.key
+	local new_center = trgu_quixort_random_center(set, old_key, seed)
+
+	if not new_center then return false end
+
+	consumable:set_ability(new_center, nil, true)
+
+	if consumable.children and consumable.children.front then
+		consumable.children.front:remove()
+		consumable.children.front = nil
+	end
+
+	consumable:set_sprites(consumable.config.center)
+	consumable:juice_up()
+
+	return true
+end
+
+local function trgu_quixort_transform_all(source_card)
+	if not G or not G.consumeables or not G.consumeables.cards then
+		return 0
+	end
+
+	local changed = 0
+	local base_seed = 'quixort_' .. tostring(G.GAME.round or 0) .. '_' .. tostring(source_card and source_card.ID or 0)
+
+	for i, consumable in ipairs(G.consumeables.cards) do
+		if trgu_quixort_transform_card(consumable, base_seed .. '_' .. tostring(i)) then
+			changed = changed + 1
+		end
+	end
+
+	if changed > 0 then
+		SMODS.calculate_effect({
+			message = localize('trgu_quixorted') or 'Quixorted!',
+			colour = G.C.FILTER
+		}, source_card)
+	end
+
+	return changed
+end
+
+SMODS.Joker {
+	key = 'quixort',
+	loc_txt = {
+		['en-us'] = {
+			name = 'Quixort',
+			text = {
+				"At start of Blind,",
+				"turns all held",
+				"{C:attention}Consumables{} into",
+				"different {C:attention}Consumables{} of",
+				"the {C:attention}same type{}"
+			}
+		},
+		ru = {
+			name = 'Скортировка',
+			text = {
+				"В начале блайнда",
+				"превращает все",
+				"{C:attention}расходники{} в другие",
+				"{C:attention}расходники{} того же",
+				"{C:attention}типа{}"
+			}
+		}
+	},
+
+	rarity = 3,
+	atlas = 'quixort',
+	pos = { x = 0, y = 0 },
+	cost = 7,
+
+	blueprint_compat = false,
+
+	calculate = function(self, card, context)
+		if context.setting_blind and not context.blueprint then
+			local changed = trgu_quixort_transform_all(card)
+		end
+	end,
+
+	add_to_deck = function(self, card, from_debuff)
+		if from_debuff then return end
+
+		G.E_MANAGER:add_event(Event({
+			trigger = 'after',
+			delay = 0.2,
+			func = function()
+				trgu_quixort_transform_all(card)
+				return true
+			end
+		}))
+	end
+}
+
+-- ИГНАТ КОРОЛЁВ ДЖОКЕР
+SMODS.Atlas {
+	key = "ignat_korolev",
+	path = "IgnatKorolev.png",
+	px = 71,
+	py = 95
+}
+
+TRGU = TRGU or {}
+TRGU.ignat_korolev = TRGU.ignat_korolev or {}
+
+local function trgu_ignat_key_ends_with(key, tail)
+	key = tostring(key or ""):lower()
+	tail = tostring(tail or ""):lower()
+
+	return key == tail
+		or key == "m_" .. tail
+		or key:sub(-#tail) == tail
+end
+
+local function trgu_ignat_get_enhancement(card)
+	if not card or not card.config or not card.config.center then
+		return nil
+	end
+
+	local center = card.config.center
+	local key = tostring(center.key or ""):lower()
+	local original_key = tostring(center.original_key or ""):lower()
+	local name = tostring(center.name or ""):lower()
+
+	local values = {
+		"mult",
+		"bonus",
+		"glass",
+		"stone",
+		"lucky",
+		"gold",
+		"steel",
+		"wild",
+		"convert",
+		"corrupted"
+	}
+
+	for _, value in ipairs(values) do
+		if trgu_ignat_key_ends_with(key, value)
+			or trgu_ignat_key_ends_with(original_key, value)
+			or name == value
+		then
+			return value
+		end
+	end
+
+	return nil
+end
+
+local function trgu_ignat_base_chips(card)
+	if not card then return 0 end
+
+	if card.base and card.base.nominal then
+		return card.base.nominal
+	end
+
+	if card.get_id then
+		local ok, id = pcall(function()
+			return card:get_id()
+		end)
+
+		if ok and id then
+			if id == 14 then return 11 end
+			if id > 10 then return 10 end
+			return id
+		end
+	end
+
+	return 0
+end
+
+local function trgu_ignat_roll_int(seed, min, max)
+	return math.floor(pseudorandom(seed) * (max - min + 1)) + min
+end
+
+local function trgu_ignat_money_text(amount)
+	if amount > 0 then
+		return "+$" .. tostring(amount)
+	end
+
+	if amount < 0 then
+		return "-$" .. tostring(math.abs(amount))
+	end
+
+	return "$0"
+end
+
+local function trgu_ignat_ease_dollars(amount)
+	if amount == 0 then return end
+
+	G.E_MANAGER:add_event(Event({
+		trigger = 'after',
+		delay = 0.15,
+		func = function()
+			if ease_dollars then
+				ease_dollars(amount)
+			elseif G and G.GAME then
+				G.GAME.dollars = (G.GAME.dollars or 0) + amount
+			end
+
+			return true
+		end
+	}))
+end
+
+local function trgu_ignat_destroy_cards_later(cards)
+	if not cards or #cards <= 0 then return end
+
+	G.E_MANAGER:add_event(Event({
+		trigger = 'after',
+		delay = 0.35,
+		func = function()
+			SMODS.destroy_cards(cards, false, false, false)
+			return true
+		end
+	}))
+end
+
+local function trgu_ignat_create_negative_tarot(source_card, seed)
+	if not G or not G.consumeables then return false end
+
+	G.GAME.consumeable_buffer = (G.GAME.consumeable_buffer or 0) + 1
+
+	G.E_MANAGER:add_event(Event({
+		trigger = 'after',
+		delay = 0.2,
+		func = function()
+			local tarot = SMODS.add_card({
+				set = 'Tarot',
+				area = G.consumeables,
+				edition = 'e_negative',
+				allow_duplicates = true,
+				key_append = seed or 'ignat_corrupted_negative_tarot'
+			})
+
+			G.GAME.consumeable_buffer = math.max((G.GAME.consumeable_buffer or 1) - 1, 0)
+
+			if tarot then
+				if not tarot.edition then
+					tarot:set_edition('e_negative', true)
+				end
+
+				tarot:juice_up()
+			end
+
+			return true
+		end
+	}))
+
+	return true
+end
+
+local function trgu_ignat_show_card_message(card, message, colour)
+	if not card then return end
+
+	if card.juice_up then
+		card:juice_up()
+	end
+
+	if SMODS and SMODS.calculate_effect then
+		SMODS.calculate_effect({
+			message = message,
+			colour = colour or G.C.FILTER
+		}, card)
+	end
+end
+
+local function trgu_ignat_card_seed(prefix, hand_card, index)
+	return table.concat({
+		prefix,
+		tostring(G and G.GAME and G.GAME.hands_played or 0),
+		tostring(hand_card and hand_card.ID or index or 0),
+		tostring(index or 0)
+	}, '_')
+end
+
+local function trgu_ignat_count_hand_enhancements()
+	if not G or not G.hand or not G.hand.cards then return 0 end
+
+	local count = 0
+
+	for _, hand_card in ipairs(G.hand.cards) do
+		local enhancement = trgu_ignat_get_enhancement(hand_card)
+
+		if enhancement then
+			count = count + 1
+		end
+	end
+
+	return count
+end
+
+SMODS.Joker {
+	key = 'ignat_korolev',
+	loc_txt = {
+		['en-us'] = {
+			name = 'IgnatKorolev',
+			text = {
+				"During scoring, {C:attention}enhanced cards{}",
+				"left in hand send their",
+				"enhancement effects to server,",
+				"than {C:attention}Ignat{} does cumulative effect",
+				"{C:inactive}(except for Gold/Steel cards){}"
+			}
+		},
+		ru = {
+			name = 'ИгнатКоролёв',
+			text = {
+				"После подсчёта разыгранных карт",
+				"оставшиеся в руке",
+				"{C:attention}карты с улучшениями{} отправляют свои",
+				"эффекты на сервер, после чего",
+				"{C:attention}Игнат{} исполняет сумму эффектов",
+				"{C:inactive}(кроме золотых/стальных карт){}"
+			}
+		}
+	},
+
+	rarity = 3,
+	atlas = 'ignat_korolev',
+	pos = { x = 0, y = 0 },
+	cost = 9,
+
+	blueprint_compat = false,
+
+	calculate = function(self, card, context)
+		if not context.joker_main then return end
+		if not G or not G.hand or not G.hand.cards then return end
+
+		local total_chips = 0
+		local total_mult = 0
+		local total_xmult = 1
+		local triggered = 0
+		local glass_to_destroy = {}
+
+		for index, hand_card in ipairs(G.hand.cards) do
+			local enhancement = trgu_ignat_get_enhancement(hand_card)
+
+			if enhancement == 'mult' then
+				triggered = triggered + 1
+				total_mult = total_mult + 4
+				trgu_ignat_show_card_message(hand_card, '+4', G.C.MULT)
+
+			elseif enhancement == 'bonus' then
+				triggered = triggered + 1
+				total_chips = total_chips + 30
+				trgu_ignat_show_card_message(hand_card, '+30', G.C.CHIPS)
+
+			elseif enhancement == 'glass' then
+				triggered = triggered + 1
+				total_xmult = total_xmult * 2
+				trgu_ignat_show_card_message(hand_card, 'X2', G.C.MULT)
+
+				local destroy_seed = trgu_ignat_card_seed('ignat_glass_break', hand_card, index)
+				local breaks = false
+
+				if SMODS.pseudorandom_probability then
+					breaks = SMODS.pseudorandom_probability(
+						card,
+						destroy_seed,
+						1,
+						4
+					)
+				else
+					breaks = pseudorandom(destroy_seed) < 0.25
+				end
+
+				if breaks then
+					glass_to_destroy[#glass_to_destroy + 1] = hand_card
+				end
+
+			elseif enhancement == 'stone' then
+				triggered = triggered + 1
+				total_chips = total_chips + 50
+				trgu_ignat_show_card_message(hand_card, '+50', G.C.CHIPS)
+
+			elseif enhancement == 'lucky' then
+				triggered = triggered + 1
+				local mult_seed = trgu_ignat_card_seed('ignat_lucky_mult', hand_card, index)
+				local money_seed = trgu_ignat_card_seed('ignat_lucky_money', hand_card, index)
+
+				local hit_mult
+				local hit_money
+
+				if SMODS.pseudorandom_probability then
+					hit_mult = SMODS.pseudorandom_probability(card, mult_seed, 1, 5)
+					hit_money = SMODS.pseudorandom_probability(card, money_seed, 1, 15)
+				else
+					hit_mult = pseudorandom(mult_seed) < 0.2
+					hit_money = pseudorandom(money_seed) < (1 / 15)
+				end
+
+				if hit_mult then
+					total_mult = total_mult + 20
+					trgu_ignat_show_card_message(hand_card, '+20', G.C.MULT)
+				else
+					trgu_ignat_show_card_message(hand_card, 'Nope!', G.C.FILTER)
+				end
+
+				if hit_money then
+					trgu_ignat_ease_dollars(20)
+					trgu_ignat_show_card_message(hand_card, '+$20', G.C.MONEY)
+				end
+
+			elseif enhancement == 'convert' then
+				local base_chips = trgu_ignat_base_chips(hand_card)
+
+				if base_chips > 0 then
+					triggered = triggered + 1
+					total_mult = total_mult + base_chips
+					trgu_ignat_show_card_message(hand_card, '+' .. tostring(base_chips), G.C.MULT)
+				end
+
+			elseif enhancement == 'corrupted' then
+				triggered = triggered + 1
+
+				local type_seed = trgu_ignat_card_seed('ignat_corrupted_type', hand_card, index)
+				local roll = pseudorandom(type_seed)
+
+				local roll_type
+
+				if roll < 0.32 then
+					roll_type = 1
+				elseif roll < 0.64 then
+					roll_type = 2
+				elseif roll < 0.96 then
+					roll_type = 3
+				elseif roll < 0.99 then
+					roll_type = 4
+				else
+					roll_type = 5
+				end
+
+				if roll_type == 1 then
+					local dollars = trgu_ignat_roll_int(
+						trgu_ignat_card_seed('ignat_corrupted_money', hand_card, index),
+						-5,
+						5
+					)
+
+					trgu_ignat_ease_dollars(dollars)
+					trgu_ignat_show_card_message(
+						hand_card,
+						trgu_ignat_money_text(dollars),
+						dollars >= 0 and G.C.MONEY or G.C.RED
+					)
+
+				elseif roll_type == 2 then
+					local chips = trgu_ignat_roll_int(
+						trgu_ignat_card_seed('ignat_corrupted_chips', hand_card, index),
+						-20,
+						20
+					)
+
+					total_chips = total_chips + chips
+					trgu_ignat_show_card_message(
+						hand_card,
+						(chips >= 0 and '+' or '') .. tostring(chips),
+						chips >= 0 and G.C.CHIPS or G.C.RED
+					)
+
+				elseif roll_type == 3 then
+					local mult = trgu_ignat_roll_int(
+						trgu_ignat_card_seed('ignat_corrupted_mult', hand_card, index),
+						-10,
+						10
+					)
+
+					total_mult = total_mult + mult
+					trgu_ignat_show_card_message(
+						hand_card,
+						(mult >= 0 and '+' or '') .. tostring(mult),
+						mult >= 0 and G.C.MULT or G.C.RED
+					)
+
+				elseif roll_type == 4 then
+					total_mult = total_mult + 50
+					trgu_ignat_show_card_message(hand_card, '+50', G.C.MULT)
+
+				elseif roll_type == 5 then
+					local created = trgu_ignat_create_negative_tarot(
+						hand_card,
+						trgu_ignat_card_seed('ignat_negative_tarot', hand_card, index)
+					)
+
+					trgu_ignat_show_card_message(
+						hand_card,
+						created and 'Tarot?' or 'Error',
+						created and G.C.SECONDARY_SET.Tarot or G.C.RED
+					)
+				end
+
+			elseif enhancement == 'gold'
+				or enhancement == 'steel'
+				or enhancement == 'wild'
+			then
+			end
+		end
+
+		if #glass_to_destroy > 0 then
+			trgu_ignat_destroy_cards_later(glass_to_destroy)
+		end
+
+		if triggered <= 0 then
+			return
+		end
+
+		local ret = {
+			message = localize('trgu_ignat_work_done'),
+			colour = G.C.FILTER
+		}
+
+		if total_chips ~= 0 then
+			ret.chips = total_chips
+		end
+
+		if total_mult ~= 0 then
+			ret.mult = total_mult
+		end
+
+		if total_xmult ~= 1 then
+			ret.xmult = total_xmult
+		end
+
+		return ret
 	end
 }
